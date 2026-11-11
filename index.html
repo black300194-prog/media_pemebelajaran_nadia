@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Data Quest - Pengolahan Data MS Excel | Fase D SMP</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Plus Jakarta Sans (Ramah Anak & Moderen) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        space: {
+                            dark: '#0B0F29',
+                            card: '#161B40',
+                            accent: '#3B82F6',
+                            purple: '#7C3AED',
+                            gold: '#F59E0B',
+                            goldHover: '#D97706',
+                            neon: '#06B6D4'
+                        }
+                    },
+                    fontFamily: {
+                        display: ['Fredoka', 'sans-serif'],
+                        body: ['Plus Jakarta Sans', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'bounce-slow': 'bounce 3s infinite'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+                            '50%': { transform: 'translateY(-12px) rotate(2deg)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: 1, boxShadow: '0 0 15px rgba(245, 158, 11, 0.6)' },
+                            '50%': { opacity: 0.8, boxShadow: '0 0 25px rgba(124, 58, 237, 0.9)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS Tambahan untuk Efek Antariksa & Drag and Drop */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #1E1B4B, #0B0F29, #050714);
+            color: #F3F4F6;
+            min-height: 100vh;
+        }
+        
+        .stars-bg {
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1px 1px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 160px 120px, #ffd700, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 230px 190px, #fff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 300px 300px;
+        }
+
+        .draggable-item {
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+
+        .drop-zone.hovered {
+            border-color: #F59E0B !important;
+            background-color: rgba(245, 158, 11, 0.15) !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0F29;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3B82F6;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7C3AED;
+        }
+    </style>
+</head>
+<body class="stars-bg flex flex-col min-h-screen text-base md:text-lg">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="sticky top-0 z-50 bg-space-dark/90 backdrop-blur-md border-b border-purple-500/30 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo Aplikasi -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-amber-400 flex items-center justify-center text-white text-2xl shadow-lg animate-bounce-slow">
+                        <i class="fa-solid font-bold fa-rocket text-amber-300"></i>
+                    </div>
+                    <div>
+                        <span class="font-display text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-purple-300 to-cyan-300">
+                            Cosmic Excel
+                        </span>
+                        <span class="block text-xs font-semibold text-cyan-400 uppercase tracking-widest">SMP Kelas 7 • Fase D</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Buttons -->
+                <nav class="hidden md:flex space-x-2 bg-space-card/80 p-1.5 rounded-full border border-purple-500/30">
+                    <button onclick="switchTab('home')" id="nav-home" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-full font-display font-semibold transition-all duration-300 text-amber-300 bg-purple-900/60 shadow">
+                        <i class="fa-solid fa-house"></i> Home
+                    </button>
+                    <button onclick="switchTab('tujuan')" id="nav-tujuan" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-full font-display font-semibold transition-all duration-300 text-gray-300 hover:text-white hover:bg-purple-800/40">
+                        <i class="fa-solid fa-bullseye"></i> Tujuan
+                    </button>
+                    <button onclick="switchTab('materi')" id="nav-materi" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-full font-display font-semibold transition-all duration-300 text-gray-300 hover:text-white hover:bg-purple-800/40">
+                        <i class="fa-solid fa-book-open-reader"></i> Materi
+                    </button>
+                    <button onclick="switchTab('kuis')" id="nav-kuis" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-full font-display font-semibold transition-all duration-300 text-gray-300 hover:text-white hover:bg-purple-800/40">
+                        <i class="fa-solid fa-gamepad"></i> Kuis Interaktif
+                    </button>
+                    <button onclick="switchTab('dragdrop')" id="nav-dragdrop" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-full font-display font-semibold transition-all duration-300 text-gray-300 hover:text-white hover:bg-purple-800/40">
+                        <i class="fa-solid fa-puzzle-piece"></i> Drag & Drop
+                    </button>
+                    <button onclick="switchTab('tentang')" id="nav-tentang" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-full font-display font-semibold transition-all duration-300 text-gray-300 hover:text-white hover:bg-purple-800/40">
+                        <i class="fa-solid fa-user-astronaut"></i> Tentang
+                    </button>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 rounded-xl text-amber-400 bg-space-card hover:bg-purple-900 border border-purple-500/40 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-space-card/95 border-b border-purple-500/30 px-4 pt-2 pb-4 space-y-2 font-display">
+            <button onclick="switchTab('home')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-purple-900/50 flex items-center gap-3 text-amber-300">
+                <i class="fa-solid fa-house w-6 text-center"></i> Home
+            </button>
+            <button onclick="switchTab('tujuan')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-purple-900/50 flex items-center gap-3 text-gray-200">
+                <i class="fa-solid fa-bullseye w-6 text-center"></i> Tujuan Pembelajaran
+            </button>
+            <button onclick="switchTab('materi')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-purple-900/50 flex items-center gap-3 text-gray-200">
+                <i class="fa-solid fa-book-open-reader w-6 text-center"></i> Materi Pembelajaran
+            </button>
+            <button onclick="switchTab('kuis')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-purple-900/50 flex items-center gap-3 text-gray-200">
+                <i class="fa-solid fa-gamepad w-6 text-center"></i> Kuis Interaktif
+            </button>
+            <button onclick="switchTab('dragdrop')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-purple-900/50 flex items-center gap-3 text-gray-200">
+                <i class="fa-solid fa-puzzle-piece w-6 text-center"></i> Drag and Drop Game
+            </button>
+            <button onclick="switchTab('tentang')" class="w-full text-left px-4 py-3 rounded-xl hover:bg-purple-900/50 flex items-center gap-3 text-gray-200">
+                <i class="fa-solid fa-user-astronaut w-6 text-center"></i> Tentang Pengembang
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTAINER UTAMA UNTUK KONTEN TAB SPA -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================= TAB 1: HOME ================= -->
+        <section id="tab-home" class="tab-content transition-opacity duration-300">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-h-[70vh]">
+                <!-- Teks Hero -->
+                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-900/60 border border-purple-400/40 text-amber-300 text-sm font-semibold animate-pulse">
+                        <i class="fa-solid fa-star"></i> Media Pembelajaran Informatika Kelas 7
+                    </div>
+                    <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
+                        Jelajahi Dunia <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-cyan-300 to-purple-400">Pengolahan Data</span> Bersama Excel! 🚀
+                    </h1>
+                    <p class="text-gray-300 text-lg md:text-xl leading-relaxed">
+                        Halo Kapten Antariksa Muda! Siapkah kamu menaklukkan rumus-rumus ajaib Microsoft Excel dan menjadi ahli data hebat? Mari mulai petualangan serumu sekarang!
+                    </p>
+                    
+                    <div class="pt-4 flex flex-wrap gap-4 justify-center lg:justify-start">
+                        <button onclick="switchTab('materi')" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-space-dark font-display font-bold text-lg shadow-xl hover:shadow-amber-500/40 transform hover:-translate-y-1 transition duration-200 flex items-center gap-3">
+                            <i class="fa-solid fa-play text-xl"></i> Mulai Belajar Materi
+                        </button>
+                        <button onclick="switchTab('kuis')" class="px-8 py-4 rounded-2xl bg-space-card hover:bg-purple-900/60 border-2 border-purple-500/50 text-white font-display font-bold text-lg shadow-xl transform hover:-translate-y-1 transition duration-200 flex items-center gap-3">
+                            <i class="fa-solid fa-gamepad text-xl text-cyan-400"></i> Mainkan Kuis
+                        </button>
+                    </div>
+
+                    <!-- Highlight Fitur Mini -->
+                    <div class="grid grid-cols-3 gap-4 pt-6 border-t border-purple-500/30">
+                        <div class="bg-space-card/60 p-3 rounded-xl text-center border border-purple-500/20">
+                            <i class="fa-solid fa-table-cells text-2xl text-cyan-400 mb-1"></i>
+                            <p class="text-xs font-semibold text-gray-300">Simulasi Excel</p>
+                        </div>
+                        <div class="bg-space-card/60 p-3 rounded-xl text-center border border-purple-500/20">
+                            <i class="fa-solid fa-brain text-2xl text-amber-400 mb-1"></i>
+                            <p class="text-xs font-semibold text-gray-300">Kuis Interaktif</p>
+                        </div>
+                        <div class="bg-space-card/60 p-3 rounded-xl text-center border border-purple-500/20">
+                            <i class="fa-solid fa-puzzle-piece text-2xl text-purple-400 mb-1"></i>
+                            <p class="text-xs font-semibold text-gray-300">Game Puzzle</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gambar/Ilustrasi Hero Interaktif -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="relative w-72 h-72 sm:w-96 sm:h-96">
+                        <!-- Orbit Rings -->
+                        <div class="absolute inset-0 border-2 border-dashed border-purple-500/30 rounded-full animate-spin" style="animation-duration: 25s;"></div>
+                        <div class="absolute inset-4 border border-cyan-400/20 rounded-full"></div>
+                        
+                        <!-- Floating Elements -->
+                        <div class="absolute top-0 right-4 bg-space-card border border-amber-400/50 p-4 rounded-2xl shadow-xl animate-float">
+                            <i class="fa-solid fa-file-excel text-green-400 text-3xl"></i>
+                            <span class="font-display font-bold text-amber-300 ml-2">=SUM(A1:A5)</span>
+                        </div>
+                        <div class="absolute bottom-6 left-0 bg-space-card border border-purple-400/50 p-4 rounded-2xl shadow-xl animate-float" style="animation-delay: 1.5s;">
+                            <i class="fa-solid fa-chart-pie text-purple-400 text-3xl"></i>
+                            <span class="font-display font-bold text-cyan-300 ml-2">Visual Data</span>
+                        </div>
+
+                        <!-- Central Astronaut Maskot -->
+                        <div class="w-full h-full bg-gradient-to-b from-purple-800/40 to-space-card rounded-full border-4 border-purple-500/40 p-8 flex flex-col items-center justify-center text-center shadow-2xl">
+                            <i class="fa-solid fa-user-astronaut text-8xl text-amber-300 mb-4 animate-pulse"></i>
+                            <span class="font-display font-bold text-xl text-white">Kapten Nadia</span>
+                            <span class="text-xs text-cyan-300">Pemandu Antariksa Data</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: TUJUAN PEMBELAJARAN ================= -->
+        <section id="tab-tujuan" class="tab-content hidden transition-opacity duration-300 space-y-8">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-900/60 border border-purple-400/40 text-amber-300 text-sm font-semibold">
+                    <i class="fa-solid fa-bullseye"></i> Capaian Pembelajaran Fase D
+                </div>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-white">Tujuan Pembelajaran Data Processing</h2>
+                <p class="text-gray-300">Berikut adalah target petualangan ilmiah yang akan kamu capai setelah mempelajari modul ini!</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Tujuan 1 -->
+                <div class="bg-space-card border-2 border-purple-500/30 hover:border-amber-400/60 rounded-3xl p-6 transition duration-300 transform hover:-translate-y-2 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 text-2xl font-bold mb-4">
+                            01
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-table text-cyan-400"></i> Mengenal Lembar Kerja
+                        </h3>
+                        <p class="text-gray-300 text-base leading-relaxed">
+                            Siswa mampu memahami konsep antarmuka Microsoft Excel meliputi <strong>Baris (Row), Kolom (Column), Sel (Cell),</strong> dan <strong>Rentang (Range)</strong> dengan tepat.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-purple-500/20 text-xs text-cyan-400 font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check"></i> Elemen Dasar Spreadshet
+                    </div>
+                </div>
+
+                <!-- Tujuan 2 -->
+                <div class="bg-space-card border-2 border-purple-500/30 hover:border-amber-400/60 rounded-3xl p-6 transition duration-300 transform hover:-translate-y-2 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-purple-400 text-2xl font-bold mb-4">
+                            02
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-green-400"></i> Menggunakan Rumus Dasar
+                        </h3>
+                        <p class="text-gray-300 text-base leading-relaxed">
+                            Siswa mampu mengidentifikasi dan menggunakan fungsi statis dasar: <code class="text-amber-300 font-bold">SUM</code>, <code class="text-amber-300 font-bold">AVERAGE</code>, <code class="text-amber-300 font-bold">MAX</code>, <code class="text-amber-300 font-bold">MIN</code>, dan <code class="text-amber-300 font-bold">COUNT</code>.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-purple-500/20 text-xs text-cyan-400 font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check"></i> Olah Angka Otomatis
+                    </div>
+                </div>
+
+                <!-- Tujuan 3 -->
+                <div class="bg-space-card border-2 border-purple-500/30 hover:border-amber-400/60 rounded-3xl p-6 transition duration-300 transform hover:-translate-y-2 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <div class="w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-400 text-2xl font-bold mb-4">
+                            03
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-amber-400"></i> Analisis Data Sederhana
+                        </h3>
+                        <p class="text-gray-300 text-base leading-relaxed">
+                            Siswa mampu mengolah sekumpulan data nilai atau observasi harian untuk mengambil kesimpulan secara logis dan cepat.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-purple-500/20 text-xs text-cyan-400 font-semibold flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check"></i> Computational Thinking
+                    </div>
+                </div>
+            </div>
+
+            <!-- Petunjuk Penggunaan -->
+            <div class="bg-gradient-to-r from-purple-900/40 to-space-card border border-purple-500/40 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
+                <div class="w-20 h-20 rounded-2xl bg-amber-500/20 flex-shrink-0 flex items-center justify-center text-amber-300 text-4xl">
+                    <i class="fa-solid fa-compass"></i>
+                </div>
+                <div>
+                    <h4 class="font-display text-2xl font-bold text-amber-300 mb-2">Petunjuk Menjelajah Modul Ini:</h4>
+                    <ul class="list-disc list-inside text-gray-300 space-y-1">
+                        <li>Pelajari materi pada menu <strong>Materi</strong> dan uji coba kalkulator rumusnya.</li>
+                        <li>Format penulisan rumus selalu diawali dengan tanda <strong>sama dengan (=)</strong>.</li>
+                        <li>Asah pemahamanmu melalui tantangan <strong>Kuis Interaktif</strong> dan <strong>Drag & Drop</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: MATERI PEMBELAJARAN ================= -->
+        <section id="tab-materi" class="tab-content hidden transition-opacity duration-300 space-y-8">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-900/60 border border-purple-400/40 text-amber-300 text-sm font-semibold">
+                    <i class="fa-solid fa-book-open"></i> Modul Pembelajaran Interaktif
+                </div>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-white">Mengenal Pengolahan Data MS Excel</h2>
+                <p class="text-gray-300">Yuk pelajari komponen penting lembar kerja dan fungsi-fungsi matematika utamanya!</p>
+            </div>
+
+            <!-- Sub-Materi 1: Anatomi Excel -->
+            <div class="bg-space-card border border-purple-500/30 rounded-3xl p-6 md:p-8 space-y-6">
+                <h3 class="font-display text-2xl font-bold text-amber-300 flex items-center gap-3">
+                    <i class="fa-solid fa-border-all text-cyan-400"></i> 1. Anatomi Lembar Kerja (Worksheet)
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-space-dark p-4 rounded-2xl border border-purple-500/20">
+                        <span class="text-xs font-bold text-purple-400 uppercase">Komponen 1</span>
+                        <h4 class="font-display font-bold text-lg text-white mt-1">Kolom (Column)</h4>
+                        <p class="text-sm text-gray-300 mt-2">Bagian yang membujur secara <strong>vertikal</strong> (dari atas ke bawah). Ditandai dengan huruf: <code class="text-amber-300">A, B, C, ...</code></p>
+                    </div>
+                    <div class="bg-space-dark p-4 rounded-2xl border border-purple-500/20">
+                        <span class="text-xs font-bold text-cyan-400 uppercase">Komponen 2</span>
+                        <h4 class="font-display font-bold text-lg text-white mt-1">Baris (Row)</h4>
+                        <p class="text-sm text-gray-300 mt-2">Bagian yang membujur secara <strong>horisontal</strong> (dari kiri ke kanan). Ditandai dengan angka: <code class="text-amber-300">1, 2, 3, ...</code></p>
+                    </div>
+                    <div class="bg-space-dark p-4 rounded-2xl border border-purple-500/20">
+                        <span class="text-xs font-bold text-amber-400 uppercase">Komponen 3</span>
+                        <h4 class="font-display font-bold text-lg text-white mt-1">Sel (Cell)</h4>
+                        <p class="text-sm text-gray-300 mt-2">Pertemuan antara Baris dan Kolom. Contohnya: <code class="text-amber-300">B2</code> (Kolom B, Baris 2).</p>
+                    </div>
+                    <div class="bg-space-dark p-4 rounded-2xl border border-purple-500/20">
+                        <span class="text-xs font-bold text-green-400 uppercase">Komponen 4</span>
+                        <h4 class="font-display font-bold text-lg text-white mt-1">Rentang (Range)</h4>
+                        <p class="text-sm text-gray-300 mt-2">Kumpulan beberapa sel yang dipilih bersamaan. Contoh: <code class="text-amber-300">A1:C5</code>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-Materi 2: Fungsi Utama Excel -->
+            <div class="bg-space-card border border-purple-500/30 rounded-3xl p-6 md:p-8 space-y-6">
+                <h3 class="font-display text-2xl font-bold text-amber-300 flex items-center gap-3">
+                    <i class="fa-solid fa-square-root-variable text-purple-400"></i> 2. 5 Rumus Dasar Utama (Formula Standard)
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- SUM -->
+                    <div class="bg-space-dark/80 p-5 rounded-2xl border-l-4 border-amber-400 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-display font-bold text-xl text-amber-300">=SUM(...)</span>
+                            <span class="px-2 py-1 rounded bg-amber-400/20 text-amber-300 text-xs font-bold">Penjumlahan</span>
+                        </div>
+                        <p class="text-sm text-gray-300">Digunakan untuk menjumlahkan seluruh total angka pada sekumpulan sel.</p>
+                        <div class="text-xs bg-space-card p-2 rounded text-cyan-300 font-mono">Contoh: =SUM(A1:A5)</div>
+                    </div>
+
+                    <!-- AVERAGE -->
+                    <div class="bg-space-dark/80 p-5 rounded-2xl border-l-4 border-cyan-400 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-display font-bold text-xl text-cyan-300">=AVERAGE(...)</span>
+                            <span class="px-2 py-1 rounded bg-cyan-400/20 text-cyan-300 text-xs font-bold">Rata-Rata</span>
+                        </div>
+                        <p class="text-sm text-gray-300">Digunakan untuk menghitung nilai rata-rata dari sekumpulan data angka.</p>
+                        <div class="text-xs bg-space-card p-2 rounded text-cyan-300 font-mono">Contoh: =AVERAGE(B1:B10)</div>
+                    </div>
+
+                    <!-- MAX -->
+                    <div class="bg-space-dark/80 p-5 rounded-2xl border-l-4 border-purple-400 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-display font-bold text-xl text-purple-300">=MAX(...)</span>
+                            <span class="px-2 py-1 rounded bg-purple-400/20 text-purple-300 text-xs font-bold">Nilai Tertinggi</span>
+                        </div>
+                        <p class="text-sm text-gray-300">Mencari nilai yang terbesar/paling tinggi di dalam rentang data.</p>
+                        <div class="text-xs bg-space-card p-2 rounded text-cyan-300 font-mono">Contoh: =MAX(C1:C5)</div>
+                    </div>
+
+                    <!-- MIN -->
+                    <div class="bg-space-dark/80 p-5 rounded-2xl border-l-4 border-red-400 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-display font-bold text-xl text-red-400">=MIN(...)</span>
+                            <span class="px-2 py-1 rounded bg-red-400/20 text-red-400 text-xs font-bold">Nilai Terendah</span>
+                        </div>
+                        <p class="text-sm text-gray-300">Mencari nilai yang terkecil/paling rendah di dalam rentang data.</p>
+                        <div class="text-xs bg-space-card p-2 rounded text-cyan-300 font-mono">Contoh: =MIN(C1:C5)</div>
+                    </div>
+
+                    <!-- COUNT -->
+                    <div class="bg-space-dark/80 p-5 rounded-2xl border-l-4 border-green-400 space-y-2 lg:col-span-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-display font-bold text-xl text-green-400">=COUNT(...)</span>
+                            <span class="px-2 py-1 rounded bg-green-400/20 text-green-400 text-xs font-bold">Jumlah Data</span>
+                        </div>
+                        <p class="text-sm text-gray-300">Menghitung berapa banyak sel yang berisi angka/data dalam suatu rentang.</p>
+                        <div class="text-xs bg-space-card p-2 rounded text-cyan-300 font-mono">Contoh: =COUNT(A1:A20)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIMULATOR INTERAKTIF EXCEL MINI -->
+            <div class="bg-gradient-to-br from-space-card to-purple-950 border-2 border-amber-400/40 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h3 class="font-display text-2xl font-bold text-amber-300 flex items-center gap-2">
+                            <i class="fa-solid fa-laptop-code text-cyan-400"></i> Simulator Excel Interaktif Mini
+                        </h3>
+                        <p class="text-sm text-gray-300">Ubah nilai angka pada tabel di bawah ini dan uji langsung rumus dasarnya!</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold border border-amber-400/40">
+                        <i class="fa-solid fa-sparkles"></i> Live Simulation
+                    </span>
+                </div>
+
+                <!-- Tabel Mini Excel -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-center border-collapse">
+                        <thead>
+                            <tr class="bg-purple-900/80 text-amber-300 font-display">
+                                <th class="p-3 border border-purple-500/40">#</th>
+                                <th class="p-3 border border-purple-500/40">Kolom A (Nama Siswa)</th>
+                                <th class="p-3 border border-purple-500/40">Kolom B (Nilai Tugas 1)</th>
+                                <th class="p-3 border border-purple-500/40">Kolom C (Nilai Tugas 2)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="font-mono text-base">
+                            <tr class="bg-space-dark/60">
+                                <td class="p-3 border border-purple-500/30 text-purple-300 font-bold">1</td>
+                                <td class="p-3 border border-purple-500/30 text-gray-200">Andi (A1)</td>
+                                <td class="p-3 border border-purple-500/30">
+                                    <input type="number" id="sim-b1" value="80" oninput="calculateSimulator()" class="w-20 text-center bg-purple-950 border border-cyan-400 rounded p-1 text-amber-300 font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400">
+                                </td>
+                                <td class="p-3 border border-purple-500/30">
+                                    <input type="number" id="sim-c1" value="90" oninput="calculateSimulator()" class="w-20 text-center bg-purple-950 border border-cyan-400 rounded p-1 text-amber-300 font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400">
+                                </td>
+                            </tr>
+                            <tr class="bg-space-dark/40">
+                                <td class="p-3 border border-purple-500/30 text-purple-300 font-bold">2</td>
+                                <td class="p-3 border border-purple-500/30 text-gray-200">Budi (A2)</td>
+                                <td class="p-3 border border-purple-500/30">
+                                    <input type="number" id="sim-b2" value="75" oninput="calculateSimulator()" class="w-20 text-center bg-purple-950 border border-cyan-400 rounded p-1 text-amber-300 font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400">
+                                </td>
+                                <td class="p-3 border border-purple-500/30">
+                                    <input type="number" id="sim-c2" value="85" oninput="calculateSimulator()" class="w-20 text-center bg-purple-950 border border-cyan-400 rounded p-1 text-amber-300 font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400">
+                                </td>
+                            </tr>
+                            <tr class="bg-space-dark/60">
+                                <td class="p-3 border border-purple-500/30 text-purple-300 font-bold">3</td>
+                                <td class="p-3 border border-purple-500/30 text-gray-200">Citra (A3)</td>
+                                <td class="p-3 border border-purple-500/30">
+                                    <input type="number" id="sim-b3" value="95" oninput="calculateSimulator()" class="w-20 text-center bg-purple-950 border border-cyan-400 rounded p-1 text-amber-300 font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400">
+                                </td>
+                                <td class="p-3 border border-purple-500/30">
+                                    <input type="number" id="sim-c3" value="100" oninput="calculateSimulator()" class="w-20 text-center bg-purple-950 border border-cyan-400 rounded p-1 text-amber-300 font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Hasil Kalkulasi Otomatis -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-purple-500/30">
+                    <div class="bg-space-dark p-3 rounded-xl border border-amber-400/30 text-center">
+                        <span class="text-xs text-gray-400 block font-mono">=SUM(B1:B3)</span>
+                        <span class="text-xs text-amber-300 font-bold">Total Nilai B</span>
+                        <div id="res-sum" class="text-2xl font-bold text-white mt-1">250</div>
+                    </div>
+                    <div class="bg-space-dark p-3 rounded-xl border border-cyan-400/30 text-center">
+                        <span class="text-xs text-gray-400 block font-mono">=AVERAGE(B1:B3)</span>
+                        <span class="text-xs text-cyan-300 font-bold">Rata-Rata B</span>
+                        <div id="res-avg" class="text-2xl font-bold text-white mt-1">83.3</div>
+                    </div>
+                    <div class="bg-space-dark p-3 rounded-xl border border-purple-400/30 text-center">
+                        <span class="text-xs text-gray-400 block font-mono">=MAX(B1:C3)</span>
+                        <span class="text-xs text-purple-300 font-bold">Nilai Tertinggi</span>
+                        <div id="res-max" class="text-2xl font-bold text-white mt-1">100</div>
+                    </div>
+                    <div class="bg-space-dark p-3 rounded-xl border border-red-400/30 text-center">
+                        <span class="text-xs text-gray-400 block font-mono">=MIN(B1:C3)</span>
+                        <span class="text-xs text-red-400 font-bold">Nilai Terendah</span>
+                        <div id="res-min" class="text-2xl font-bold text-white mt-1">75</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: KUIS INTERAKTIF ================= -->
+        <section id="tab-kuis" class="tab-content hidden transition-opacity duration-300 space-y-8">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-900/60 border border-purple-400/40 text-amber-300 text-sm font-semibold">
+                    <i class="fa-solid fa-gamepad"></i> Tantangan Antariksa
+                </div>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-white">Kuis Pilihan Ganda Interaktif</h2>
+                <p class="text-gray-300">Uji kemampuan pengolahan datamu! Jawab 5 pertanyaan berikut dengan tepat.</p>
+            </div>
+
+            <!-- Quiz Container Card -->
+            <div class="max-w-3xl mx-auto bg-space-card border-2 border-purple-500/40 rounded-3xl p-6 md:p-8 shadow-2xl relative">
+                
+                <!-- Progress Bar & Score -->
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-purple-500/30">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-300 font-semibold">Soal:</span>
+                        <span id="quiz-progress-text" class="font-display font-bold text-amber-300 text-lg">1 / 5</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-purple-900/60 px-4 py-1.5 rounded-full border border-purple-400/30">
+                        <i class="fa-solid fa-trophy text-amber-400"></i>
+                        <span class="text-sm text-gray-200">Skor: <strong id="quiz-score" class="text-amber-300 font-bold text-lg">0</strong></span>
+                    </div>
+                </div>
+
+                <!-- Quiz Main Body -->
+                <div id="quiz-body" class="space-y-6">
+                    <!-- Text Soal -->
+                    <h3 id="quiz-question" class="font-display text-xl sm:text-2xl font-bold text-white leading-relaxed">
+                        Memuat pertanyaan...
+                    </h3>
+
+                    <!-- Pilihan Jawaban -->
+                    <div id="quiz-options" class="grid grid-cols-1 gap-4">
+                        <!-- Generasi dinamis via JS -->
+                    </div>
+
+                    <!-- Feedback Alert -->
+                    <div id="quiz-feedback" class="hidden p-4 rounded-2xl text-center font-display font-bold text-lg animate-bounce-slow">
+                    </div>
+                </div>
+
+                <!-- Tombol Navigasi Kuis -->
+                <div class="mt-8 pt-4 border-t border-purple-500/30 flex justify-between items-center">
+                    <button id="quiz-prev-btn" onclick="prevQuestion()" class="px-6 py-2.5 rounded-xl bg-space-dark hover:bg-purple-900 text-gray-300 font-semibold text-sm transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Sebelumnya
+                    </button>
+                    <button id="quiz-next-btn" onclick="nextQuestion()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-space-dark font-display font-bold text-sm shadow duration-200">
+                        Lanjut <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+
+                <!-- Quiz Result Screen (Hidden by default) -->
+                <div id="quiz-result" class="hidden text-center py-8 space-y-6">
+                    <div class="w-24 h-24 rounded-full bg-amber-400/20 border-4 border-amber-400 mx-auto flex items-center justify-center text-amber-300 text-5xl animate-bounce">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <h3 class="font-display text-3xl font-bold text-white">Misi Selesai!</h3>
+                    <p class="text-gray-300 text-lg">Kamu telah menyelesaikan Kuis Pengolahan Data Excel.</p>
+                    <div class="bg-space-dark/80 p-6 rounded-2xl max-w-sm mx-auto border border-purple-500/40">
+                        <span class="text-sm text-gray-400 block mb-1">Skor Akhir Kamu:</span>
+                        <span id="final-score-text" class="font-display text-5xl font-extrabold text-amber-300">0</span>
+                        <span class="text-sm text-gray-300 block mt-2" id="final-eval-text">Hebat sekali!</span>
+                    </div>
+                    <button onclick="resetQuiz()" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-amber-500 text-white font-display font-bold shadow-lg hover:brightness-110 transition">
+                        <i class="fa-solid fa-rotate-right mr-2"></i> Coba Kuis Lagi
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 5: DRAG AND DROP GAME ================= -->
+        <section id="tab-dragdrop" class="tab-content hidden transition-opacity duration-300 space-y-8">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-900/60 border border-purple-400/40 text-amber-300 text-sm font-semibold">
+                    <i class="fa-solid fa-puzzle-piece"></i> Minigame Pencocokan
+                </div>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-white">Game Drag & Drop Rumus Excel</h2>
+                <p class="text-gray-300">Tarik nama fungsi/rumus di sebelah kiri dan jatuhkan ke deskripsi fungsi yang sesuai di sebelah kanan!</p>
+            </div>
+
+            <div class="bg-space-card border-2 border-purple-500/40 rounded-3xl p-6 md:p-8 space-y-8 shadow-2xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    
+                    <!-- Kolom Kiri: Draggable Items -->
+                    <div class="space-y-4">
+                        <h3 class="font-display text-xl font-bold text-amber-300 border-b border-purple-500/30 pb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-hand"></i> Pilihan Rumus (Drag):
+                        </h3>
+                        <div id="drag-items-container" class="space-y-3">
+                            <!-- Items generated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Kolom Kanan: Drop Targets -->
+                    <div class="space-y-4">
+                        <h3 class="font-display text-xl font-bold text-cyan-300 border-b border-purple-500/30 pb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-bullseye"></i> Target Deskripsi (Drop):
+                        </h3>
+                        <div id="drop-zones-container" class="space-y-3">
+                            <!-- Zones generated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tombol Cek & Feedback Game -->
+                <div class="pt-6 border-t border-purple-500/30 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div id="game-feedback-text" class="font-display font-semibold text-gray-300 text-center sm:text-left">
+                        Jatuhkan semua rumus ke tempat yang cocok!
+                    </div>
+                    <button onclick="resetDragDropGame()" class="px-6 py-3 rounded-xl bg-purple-800 hover:bg-purple-700 text-white font-display font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-rotate"></i> Reset Game
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 6: TENTANG PENGEMBANG ================= -->
+        <section id="tab-tentang" class="tab-content hidden transition-opacity duration-300 space-y-8">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-900/60 border border-purple-400/40 text-amber-300 text-sm font-semibold">
+                    <i class="fa-solid fa-address-card"></i> Profil Pengembang
+                </div>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold text-white">Tentang Media Pembelajaran</h2>
+            </div>
+
+            <!-- Profile Card -->
+            <div class="max-w-3xl mx-auto bg-space-card border-2 border-purple-500/40 rounded-3xl p-6 md:p-10 shadow-2xl space-y-8">
+                <div class="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                    <div class="w-32 h-32 rounded-3xl bg-gradient-to-tr from-amber-400 via-purple-600 to-cyan-400 p-1 flex-shrink-0 shadow-xl">
+                        <div class="w-full h-full bg-space-dark rounded-[22px] flex items-center justify-center text-amber-300 text-5xl">
+                            <i class="fa-solid fa-user-astronaut"></i>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <span class="px-3 py-1 rounded-full bg-purple-900/80 text-cyan-300 text-xs font-bold border border-purple-400/30">
+                            Guru Informatika SMP
+                        </span>
+                        <h3 class="font-display text-3xl font-bold text-white">NADIA CAMELIA ASSIRY</h3>
+                        <p class="text-amber-300 font-semibold">Pengembang & Perancang Media Pembelajaran Interaktif</p>
+                        <p class="text-gray-300 text-sm">
+                            Berdedikasi untuk menciptakan suasana belajar Informatika yang menyenangkan, interaktif, dan mudah dipahami oleh siswa SMP kelas 7 di seluruh Indonesia.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Detail Informasi Aplikasi -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-purple-500/30 pt-6">
+                    <div class="bg-space-dark p-4 rounded-2xl border border-purple-500/20">
+                        <span class="text-xs font-bold text-purple-400 uppercase">Mata Pelajaran</span>
+                        <p class="font-display font-bold text-lg text-white mt-1">Informatika (Fase D)</p>
+                    </div>
+                    <div class="bg-space-dark p-4 rounded-2xl border border-purple-500/20">
+                        <span class="text-xs font-bold text-cyan-400 uppercase">Materi Pokok</span>
+                        <p class="font-display font-bold text-lg text-white mt-1">Pengolahan Data (MS Excel)</p>
+                    </div>
+                    <div class="bg-space-dark p-4 rounded-2xl border border-purple-500/20">
+                        <span class="text-xs font-bold text-amber-400 uppercase">Target Sasaran</span>
+                        <p class="font-display font-bold text-lg text-white mt-1">Siswa SMP Kelas 7</p>
+                    </div>
+                    <div class="bg-space-dark p-4 rounded-2xl border border-purple-500/20">
+                        <span class="text-xs font-bold text-green-400 uppercase">Versi Aplikasi</span>
+                        <p class="font-display font-bold text-lg text-white mt-1">v2.0 (Cosmic Edition)</p>
+                    </div>
+                </div>
+
+                <!-- Quote / Note -->
+                <div class="p-4 rounded-2xl bg-purple-900/30 border border-purple-500/30 text-center italic text-gray-300 text-sm">
+                    "Teknologi dan data adalah jendela menuju masa depan. Belajar data hari ini untuk memimpin dunia besok!"
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-space-dark border-t border-purple-500/30 py-6 mt-12 text-center text-sm text-gray-400 font-display">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p>© 2026 <strong>Cosmic Data Quest</strong> • Dirancang oleh <strong>Nadia Camelia Assiry</strong></p>
+            <p class="text-xs text-purple-400">Media Pembelajaran Interaktif Pengolahan Data MS Excel • Fase D Kelas 7 SMP</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT UTAMA (Navigasi, Simulator, Kuis, & Drag Drop) -->
+    <script>
+        /* ================= 1. SYSTEM NAVIGASI TAB (SPA) ================= */
+        function switchTab(tabId) {
+            // Sembunyikan semua tab content
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Tampilkan tab yang dipilih
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+
+            // Update styling nav button desktop
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                btn.classList.remove('text-amber-300', 'bg-purple-900/60', 'shadow');
+                btn.classList.add('text-gray-300');
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-gray-300');
+                activeBtn.classList.add('text-amber-300', 'bg-purple-900/60', 'shadow');
+            }
+
+            // Close mobile menu if open
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+
+            // Scroll ke atas dengan halus
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        /* ================= 2. SIMULATOR EXCEL MINI ================= */
+        function calculateSimulator() {
+            const b1 = parseFloat(document.getElementById('sim-b1').value) || 0;
+            const b2 = parseFloat(document.getElementById('sim-b2').value) || 0;
+            const b3 = parseFloat(document.getElementById('sim-b3').value) || 0;
+
+            const c1 = parseFloat(document.getElementById('sim-c1').value) || 0;
+            const c2 = parseFloat(document.getElementById('sim-c2').value) || 0;
+            const c3 = parseFloat(document.getElementById('sim-c3').value) || 0;
+
+            const allValuesB = [b1, b2, b3];
+            const allValuesAll = [b1, b2, b3, c1, c2, c3];
+
+            // Hitung SUM (Kolom B)
+            const sumB = allValuesB.reduce((a, b) => a + b, 0);
+            document.getElementById('res-sum').innerText = sumB;
+
+            // Hitung AVERAGE (Kolom B)
+            const avgB = (sumB / allValuesB.length).toFixed(1);
+            document.getElementById('res-avg').innerText = avgB;
+
+            // Hitung MAX (Semua Nilai)
+            const maxVal = Math.max(...allValuesAll);
+            document.getElementById('res-max').innerText = maxVal;
+
+            // Hitung MIN (Semua Nilai)
+            const minVal = Math.min(...allValuesAll);
+            document.getElementById('res-min').innerText = minVal;
+        }
+
+        /* ================= 3. KUIS INTERAKTIF DATA ================= */
+        const quizData = [
+            {
+                question: "1. Komponen lembar kerja Excel yang membujur secara vertikal dari atas ke bawah dan ditandai huruf (A, B, C) disebut...",
+                options: ["Baris (Row)", "Kolom (Column)", "Sel (Cell)", "Rentang (Range)"],
+                answer: 1
+            },
+            {
+                question: "2. Fungsi/rumus dalam Microsoft Excel yang digunakan khusus untuk menghitung TOTAL Penjumlahan angka adalah...",
+                options: ["=AVERAGE()", "=COUNT()", "=SUM()", "=MAX()"],
+                answer: 2
+            },
+            {
+                question: "3. Setiap penulisan rumus atau formula pada Microsoft Excel WAJIB diawali dengan simbol...",
+                options: ["Tanda Tambah (+)", "Tanda Sama Dengan (=)", "Tanda Bintang (*)", "Tanda Pagar (#)"],
+                answer: 1
+            },
+            {
+                question: "4. Apabila kamu ingin mencari nilai tertinggi dari kumpulan nilai ujian siswa (B2:B10), rumus yang tepat adalah...",
+                options: ["=MAX(B2:B10)", "=MIN(B2:B10)", "=SUM(B2:B10)", "=COUNT(B2:B10)"],
+                answer: 0
+            },
+            {
+                question: "5. Pertemuan antara Kolom B dan Baris ke-5 pada lembar kerja Excel membentuk sel yang bernama...",
+                options: ["5B", "B-5", "B5", "BB5"],
+                answer: 2
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+
+        function loadQuestion() {
+            const currentQuiz = quizData[currentQuestionIndex];
+            document.getElementById('quiz-question').innerText = currentQuiz.question;
+            document.getElementById('quiz-progress-text').innerText = `${currentQuestionIndex + 1} / ${quizData.length}`;
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            const feedbackEl = document.getElementById('quiz-feedback');
+            feedbackEl.classList.add('hidden');
+
+            currentQuiz.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-2xl font-display font-semibold transition border-2 border-purple-500/30 flex items-center justify-between ${
+                    userAnswers[currentQuestionIndex] === index
+                        ? 'bg-purple-900 border-amber-400 text-amber-300'
+                        : 'bg-space-dark hover:bg-purple-950 text-gray-200'
+                }`;
+                btn.innerHTML = `<span>${option}</span> <i class="fa-regular ${userAnswers[currentQuestionIndex] === index ? 'fa-circle-check text-amber-300' : 'fa-circle text-gray-500'} text-xl"></i>`;
+                btn.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Update state prev button
+            document.getElementById('quiz-prev-btn').disabled = (currentQuestionIndex === 0);
+
+            // Update state next button text
+            const nextBtn = document.getElementById('quiz-next-btn');
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.innerHTML = `Selesai & Lihat Hasil <i class="fa-solid fa-trophy ml-2"></i>`;
+            } else {
+                nextBtn.innerHTML = `Lanjut <i class="fa-solid fa-arrow-right ml-2"></i>`;
+            }
+        }
+
+        function selectAnswer(optionIndex) {
+            userAnswers[currentQuestionIndex] = optionIndex;
+            const currentQuiz = quizData[currentQuestionIndex];
+            const feedbackEl = document.getElementById('quiz-feedback');
+
+            feedbackEl.classList.remove('hidden', 'bg-green-900/60', 'text-green-300', 'bg-red-900/60', 'text-red-300', 'border-green-400', 'border-red-400');
+            
+            if (optionIndex === currentQuiz.answer) {
+                feedbackEl.classList.add('bg-green-900/60', 'text-green-300', 'border', 'border-green-400');
+                feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i> Benar Sekali! Jawaban kamu tepat.`;
+            } else {
+                feedbackEl.classList.add('bg-red-900/60', 'text-red-300', 'border', 'border-red-400');
+                feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i> Kurang tepat. Coba periksa kembali jawabannya!`;
+            }
+
+            calculateScore();
+            loadQuestion();
+        }
+
+        function calculateScore() {
+            score = 0;
+            userAnswers.forEach((ans, index) => {
+                if (ans === quizData[index].answer) {
+                    score += 20; // 5 Soal, total max 100
+                }
+            });
+            document.getElementById('quiz-score').innerText = score;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                // Tampilkan hasil akhir kuis
+                showQuizResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        }
+
+        function showQuizResults() {
+            document.getElementById('quiz-body').classList.add('hidden');
+            document.getElementById('quiz-prev-btn').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+            
+            const resultScreen = document.getElementById('quiz-result');
+            resultScreen.classList.remove('hidden');
+
+            document.getElementById('final-score-text').innerText = score;
+
+            const evalText = document.getElementById('final-eval-text');
+            if (score === 100) {
+                evalText.innerText = "Luar Biasa Perfect! Kamu Master Excel Sejati! 🌟";
+            } else if (score >= 60) {
+                evalText.innerText = "Kerja Bagus! Pemahamanmu tentang Excel sudah mantap! 👍";
+            } else {
+                evalText.innerText = "Tetap Semangat! Pelajari materi sekali lagi ya! 💪";
+            }
+        }
+
+        function resetQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = new Array(quizData.length).fill(null);
+            document.getElementById('quiz-score').innerText = score;
+
+            document.getElementById('quiz-body').classList.remove('hidden');
+            document.getElementById('quiz-prev-btn').classList.remove('hidden');
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+            document.getElementById('quiz-result').classList.add('hidden');
+
+            loadQuestion();
+        }
+
+        /* ================= 4. GAME DRAG & DROP ================= */
+        const dragDropItemsData = [
+            { id: 'sum', label: '=SUM()', match: 'target-sum' },
+            { id: 'avg', label: '=AVERAGE()', match: 'target-avg' },
+            { id: 'max', label: '=MAX()', match: 'target-max' },
+            { id: 'min', label: '=MIN()', match: 'target-min' }
+        ];
+
+        const dragDropTargetsData = [
+            { id: 'target-sum', desc: 'Menghitung TOTAL Penjumlahan angka' },
+            { id: 'target-avg', desc: 'Menghitung RATA-RATA sekumpulan angka' },
+            { id: 'target-max', desc: 'Mencari nilai TERBESAR / Tertinggi' },
+            { id: 'target-min', desc: 'Mencari nilai TERKECIL / Terendah' }
+        ];
+
+        let matchedPairs = 0;
+
+        function initDragDropGame() {
+            matchedPairs = 0;
+            const dragContainer = document.getElementById('drag-items-container');
+            const dropContainer = document.getElementById('drop-zones-container');
+
+            dragContainer.innerHTML = '';
+            dropContainer.innerHTML = '';
+            document.getElementById('game-feedback-text').innerText = 'Jatuhkan semua rumus ke tempat yang cocok!';
+
+            // Acak urutan item agar menarik
+            const shuffledDrags = [...dragDropItemsData].sort(() => Math.random() - 0.5);
+            const shuffledDrops = [...dragDropTargetsData].sort(() => Math.random() - 0.5);
+
+            // Render Draggable Items
+            shuffledDrags.forEach(item => {
+                const el = document.createElement('div');
+                el.id = item.id;
+                el.draggable = true;
+                el.className = 'draggable-item bg-gradient-to-r from-amber-500 to-amber-600 text-space-dark font-display font-bold p-4 rounded-2xl shadow-lg border-2 border-amber-300 flex items-center justify-between';
+                el.innerHTML = `<span>${item.label}</span> <i class="fa-solid fa-grip-vertical opacity-60"></i>`;
+                
+                // Touch & Drag Events
+                el.addEventListener('dragstart', handleDragStart);
+                dragContainer.appendChild(el);
+            });
+
+            // Render Drop Zones
+            shuffledDrops.forEach(target => {
+                const zone = document.createElement('div');
+                zone.dataset.targetId = target.id;
+                zone.className = 'drop-zone bg-space-dark border-2 border-dashed border-purple-500/40 p-4 rounded-2xl min-h-[64px] flex items-center justify-between transition duration-200';
+                zone.innerHTML = `<span class="text-sm text-gray-300 font-semibold">${target.desc}</span> <span class="text-xs text-purple-400 italic">[Taruh di sini]</span>`;
+                
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('dragleave', handleDragLeave);
+                zone.addEventListener('drop', handleDrop);
+                dropContainer.appendChild(zone);
+            });
+        }
+
+        let draggedElementId = null;
+
+        function handleDragStart(e) {
+            draggedElementId = this.id;
+            e.dataTransfer.setData('text/plain', this.id);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            this.classList.add('hovered');
+        }
+
+        function handleDragLeave() {
+            this.classList.remove('hovered');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('hovered');
+
+            const draggedId = e.dataTransfer.getData('text/plain') || draggedElementId;
+            const draggedItem = dragDropItemsData.find(item => item.id === draggedId);
+            const targetZoneId = this.dataset.targetId;
+
+            if (draggedItem && draggedItem.match === targetZoneId) {
+                // Jawaban Cocok!
+                const draggedNode = document.getElementById(draggedId);
+                this.innerHTML = `
+                    <div class="w-full bg-green-900/60 border border-green-400 text-green-300 p-3 rounded-xl font-display font-bold flex justify-between items-center">
+                        <span><i class="fa-solid fa-circle-check mr-2"></i> ${draggedItem.label}</span>
+                        <span class="text-xs text-gray-200 font-sans">${this.querySelector('span') ? this.querySelector('span').innerText : ''}</span>
+                    </div>
+                `;
+                if (draggedNode) draggedNode.remove();
+                matchedPairs++;
+
+                if (matchedPairs === dragDropItemsData.length) {
+                    document.getElementById('game-feedback-text').innerHTML = `<span class="text-amber-300 font-bold text-lg"><i class="fa-solid fa-star text-amber-400 mr-2"></i> Selamat! Kamu Berhasil Mencocokkan Semua Rumus!</span>`;
+                }
+            } else {
+                // Jawaban Salah
+                document.getElementById('game-feedback-text').innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Rumus belum cocok dengan deskripsi tersebut. Coba lagi!</span>`;
+            }
+        }
+
+        function resetDragDropGame() {
+            initDragDropGame();
+        }
+
+        /* ================= 5. INITIALIZATION ON WINDOW LOAD ================= */
+        window.onload = function() {
+            // Jalankan Kalkulator Simulasi Pertama Kali
+            calculateSimulator();
+            // Load Kuis Pertama Kali
+            loadQuestion();
+            // Inisialisasi Game Drag & Drop
+            initDragDropGame();
+        };
+    </script>
+</body>
+</html>
